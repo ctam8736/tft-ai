@@ -1,6 +1,6 @@
 class Board:
     def __init__(self):
-        self.champions = set()
+        self.champions = {}
         self.position = [None] * 21
         self.active_synergies = {
             "Assassin": {"active": 0, "required": [3, 6]},
@@ -28,19 +28,51 @@ class Board:
             "Yordle": {"active": 0, "required": [3, 6]},
         }
 
-    def addChampion(self, champion):
+    def addChampion(self, champion, pos_idx):
+        """
+        Adds champion to internal board representation and updates synergies. Duplicate champions will not proc additional synergies.
+        """
+        self.position[pos_idx] = champion
         if not champion.name in self.champions:
             for champ_origin in champion.origin:
                 self.active_synergies[champ_origin]["active"] += 1
             for champ_class in champion.classes:
                 self.active_synergies[champ_class]["active"] += 1
-            self.champions.add(champion.name)
+            self.champions[champion.name] = 1
+        else:
+            self.champions[champion.name] += 1
+
+    def removeChampion(self, champion):
+        """
+        Removes champion from internal board representation and updates synergies. Removing duplicate will not change synergies.
+        """
+        if champion.name in self.champions:
+            if champions[champion.name] == 1:
+                for champ_origin in champion.origin:
+                    self.active_synergies[champ_origin]["active"] -= 1
+                for champ_class in champion.classes:
+                    self.active_synergies[champ_class]["active"] -= 1
+                self.champions.pop(champion.name)
+            else:
+                self.champions[champion.name] -= 1
 
     def printActive(self):
+        """
+        Prints all existing synergies of represented champions.
+        """
         for synergy in self.active_synergies:
             if self.active_synergies[synergy]["active"] > 0:
                 print(synergy + ": " + str(self.active_synergies[synergy]["active"]))
 
     def printSearching(self):
+        """
+        To do: print existing synergies ordered by least additions to requirement.
+        """
         for synergy in self.active_synergies:
             pass
+
+    def getChampions(self):
+        """
+        Returns the champions set.
+        """
+        return self.champions

@@ -27,22 +27,64 @@ class ScreenInterpreter:
 
     # main function: reads data from in-game screenshot
     def retrieveData(self, screenshot):
+        """
+        Retrieves relevant data (e.g. champs, gold, items, etc.) from the latest screenshot.
+        """
         # run tesseract to locate text
         # recognize champs in store and on board
         # see gold
         # if champ info open, record
 
-        # asssume 1920 by 1080
-        img = screenshot
+        # update store
         x = 485
         for i in range(5):
-            img1 = PIL.ImageOps.invert(img.crop((x, 1041, x + 140, 1069)))
-            img1 = img1.convert("LA")
-            self.data["store"][i] = pytesseract.image_to_string(
-                img1, config="-c tessedit_char_blacklist=.,"
+            self.data["store"][i] = self.read(
+                self.cropAndEdit(screenshot, x, 1041, x + 140, 1069)
             )
             x += 201
 
+        # update gold
+        thresh = 150
+        fn = lambda x: 255 if x > thresh else 0
+        screenshot = (
+            self.cropAndEdit(screenshot, 873, 881, 906, 910)
+            .resize((200, 200), Image.ANTIALIAS)
+            .convert("L")
+            .point(fn, mode="1")
+        )
+        self.data["gold"] = int(self.read(screenshot, whitelist="0123456789"))
+
+    def cropAndEdit(self, img, x1, y1, x2, y2):
+        """
+        Crops, inverts, and desaturates image.
+        """
+        img1 = PIL.ImageOps.invert(img.crop((x1, y1, x2, y2)))
+        img1 = img1.convert("LA")
+        img1.save("out.png")
+        return img1
+
+    def read(self, img, blacklist=".,", whitelist=None):
+        """
+        Performs the tesseract operation on a cropped image after inversion and desaturation.
+        """
+        if whitelist:
+            return pytesseract.image_to_string(
+                img, config="-c tessedit_char_whitelist=" + whitelist
+            )
+        else:
+            return pytesseract.image_to_string(
+                img, config="-c tessedit_char_blacklist=" + blacklist
+            )
+
     def getStore(self):
+        """
+        Returns array containing champions found in store (use after retrieval).
+        """
         return self.data["store"]
+
+    def getGold(self):
+        """
+        Returns current gold count (use after retrieval).
+        """
+        return self.data["gold"]
 

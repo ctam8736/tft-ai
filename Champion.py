@@ -3,6 +3,8 @@ import json
 
 class Champion:
 
+    # static champion data for easy synergy and stat access
+
     with open("Synergies.json", "r") as file:
         synergies = json.load(file)
 
@@ -19,4 +21,7 @@ class Champion:
             self.items = []
         except KeyError:
             print("'" + name + "' is not a valid TFT champion.")
+
+    def __str__():
+        return name + ": Star Level " + str(star_level)
 
