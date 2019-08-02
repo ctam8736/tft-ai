@@ -44,6 +44,7 @@ class ScreenInterpreter:
             x += 201
 
         # update gold
+        """
         thresh = 150
         fn = lambda x: 255 if x > thresh else 0
         screenshot = (
@@ -53,6 +54,7 @@ class ScreenInterpreter:
             .point(fn, mode="1")
         )
         self.data["gold"] = int(self.read(screenshot, whitelist="0123456789"))
+        """
 
     def cropAndEdit(self, img, x1, y1, x2, y2):
         """

@@ -1,6 +1,7 @@
 from ScreenInterpreter import ScreenInterpreter
 from PlayerControl import PlayerControl
-from Board import Board
+from Field import Field
+from Champion import Champion
 import pyautogui
 
 
@@ -8,7 +9,7 @@ class Bot:
     def __init__(self):
         self.info_reader = ScreenInterpreter()
         self.controller = PlayerControl()
-        self.board = board()
+        self.field = Field()
 
     def runBot(self):
         """
@@ -19,5 +20,62 @@ class Bot:
         print("Identified champs from store: " + str(self.info_reader.getStore()))
         print("Identified gold total: " + str(self.info_reader.getGold()))
 
-    def buyRelevant(self):
+    def valueOf(self, champion):
+        """
+        Returns the champion's estimated value to the bot.
+        """
+        if champion.name is None:
+            return 0
+        return champion.tier
+
+    def purchaseLoop(self):
+        """
+        To do: buys best candidate champions from the store in exchange for empty/low-value champions on field.
+        """
+        if not self.field.hasEmptySpaces():
+            # find minimum champion on bench
+            bench_champ_values = list(map(self.valueOf, self.field.bench_position))
+            min_value = bench_champ_values[0]
+            worst_idx = 0
+            for idx, value in enumerate(bench_champ_values):
+                if value < min_value:
+                    min_value = value
+                    worst_idx = idx
+            self.controller.sellChampion(worst_idx)
+
+        self.info_reader.retrieveData(pyautogui.screenshot())
+        store_champ_values = [None] * 5
+        for idx, champ_name in enumerate(self.info_reader.data["store"]):
+            print(champ_name)
+            store_champ_values[idx] = self.valueOf(Champion(champ_name, 1))
+        max_value = 0
+        best_idx = 0
+        for idx, value in enumerate(store_champ_values):
+            if value > max_value:
+                max_value = value
+                best_idx = idx
+        self.controller.buyChampion(best_idx)
+        print(self.info_reader.data["store"])
+        print(store_champ_values)
+
+    def buyChampion(self, store_idx):
+        """
+        Buys champion at store index. (Clicks and adds to internal field.)
+        """
+        self.controller.buyChampion(store_idx)
+        self.field.addChampionToBench(
+            Champion(self.info_reader.data["store"][store_idx], 1)
+        )
+
+    def decideReroll(self):
+        """
+        Returns true if rerolling is favorable.
+        """
+        return False
+
+    def optimizeBoard(self):
+        """
+        To do: from pool of champs, make best (synergistic) board configuration.
+        """
+        pass
 

@@ -1,14 +1,18 @@
 import pyautogui
 import time
+from Resources import Resources
+from Field import Field
 
 
 class PlayerControl:
-
     def __init__(self):
+        """
         self.action_sequence = []
         self.board = [None] * 21
         self.shop = [None] * 5
         self.items = [None] * 10
+        """
+        self.resources = Resources()
 
     def buyChampion(self, store_index):
         """
@@ -23,13 +27,15 @@ class PlayerControl:
         """
         Presses the reroll button via default hotkey.
         """
-        pyautogui.press('d')
+        pyautogui.press("d")
+        self.resources.increaseGoldBy(-2)
 
     def levelUp(self):
         """
         Presses the level up button via default hotkey.
         """
-        pyautogui.press('f')
+        pyautogui.press("f")
+        self.resources.increaseXpBy(4)
 
     def boardIndexToPosition(self, board_index):
         """

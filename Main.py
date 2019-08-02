@@ -7,23 +7,17 @@ import keyboard
 
 from ScreenInterpreter import ScreenInterpreter
 from Champion import Champion
-from Board import Board
 from PlayerControl import PlayerControl
 from Bot import Bot
 
 
 def testStoreVision():
     "Reads champions in store from screenshot, adds them to board, then prints synergies."
-    board = Board()
-    interpreter = ScreenInterpreter()
-    img = Image.open("Screenshots/Screen07.png")
-    interpreter.retrieveData(img)
-    print("Store contains: " + str(interpreter.getStore()) + "\n")
-    for champ_name in interpreter.getStore():
-        board.addChampion(Champion(champ_name, 1))
-    print("Synergies:")
-    board.printActive()
-    print("\nActive champions: " + str(board.champions))
+    print("Reading...")
+    info_reader = ScreenInterpreter()
+    info_reader.retrieveData(pyautogui.screenshot())
+    print("Identified champs from store: " + str(info_reader.getStore()))
+    print("Identified gold total: " + str(info_reader.getGold()))
 
 
 def testManeuvering():
@@ -52,11 +46,7 @@ def buyOut():
 while True:  # making a loop
     try:  # used try so that if user pressed other than the given key error will not be shown
         if keyboard.is_pressed("-"):  # if key 'a' is pressed
-            print("Reading...")
-            info_reader = ScreenInterpreter()
-            info_reader.retrieveData(pyautogui.screenshot())
-            print("Identified champs from store: " + str(info_reader.getStore()))
-            print("Identified gold total: " + str(info_reader.getGold()))
+            testStoreVision()
         elif keyboard.is_pressed("="):
             testManeuvering()
         else:
