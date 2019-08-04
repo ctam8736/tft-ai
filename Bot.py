@@ -24,7 +24,7 @@ class Bot:
         """
         Returns the champion's estimated value to the bot.
         """
-        if champion.name is None:
+        if champion is None:
             return 0
         return champion.tier
 
@@ -41,20 +41,34 @@ class Bot:
                 if value < min_value:
                     min_value = value
                     worst_idx = idx
+            print(
+                "Worst champion: "
+                + str(self.field.bench_position[worst_idx])
+                + " at value "
+                + str(min_value)
+            )
             self.controller.sellChampion(worst_idx)
 
         self.info_reader.retrieveData(pyautogui.screenshot())
-        store_champ_values = [None] * 5
-        for idx, champ_name in enumerate(self.info_reader.data["store"]):
-            print(champ_name)
-            store_champ_values[idx] = self.valueOf(Champion(champ_name, 1))
+        store_champ_values = list(
+            map(
+                (lambda champ_name: self.valueOf(self.championFromName(champ_name))),
+                self.info_reader.data["store"],
+            )
+        )
         max_value = 0
         best_idx = 0
         for idx, value in enumerate(store_champ_values):
             if value > max_value:
                 max_value = value
                 best_idx = idx
-        self.controller.buyChampion(best_idx)
+        print(
+            "Best champion: "
+            + str(self.info_reader.data["store"][best_idx])
+            + " at value "
+            + str(max_value)
+        )
+        self.buyChampion(best_idx)
         print(self.info_reader.data["store"])
         print(store_champ_values)
 
@@ -64,8 +78,15 @@ class Bot:
         """
         self.controller.buyChampion(store_idx)
         self.field.addChampionToBench(
-            Champion(self.info_reader.data["store"][store_idx], 1)
+            self.championFromName(self.info_reader.data["store"][store_idx])
         )
+
+    def sellChampion(self, bench_idx):
+        """
+        Sells champion at bench index. (Targets with 'E' and removes from internal field.)
+        """
+        self.controller.sellChampion(bench_idx)
+        self.field.removeChampionFromBench(bench_idx)
 
     def decideReroll(self):
         """
@@ -78,4 +99,11 @@ class Bot:
         To do: from pool of champs, make best (synergistic) board configuration.
         """
         pass
+
+    def championFromName(self, champ_name):
+        champ = Champion(champ_name, 1)
+        if champ.name is None:
+            return None
+        else:
+            return champ
 

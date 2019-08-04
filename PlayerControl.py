@@ -23,6 +23,13 @@ class PlayerControl:
         time.sleep(0.05)
         pyautogui.mouseUp()
 
+    def sellChampion(self, bench_idx):
+        """
+        Sells the nth champion from the left on the bench.
+        """
+        pyautogui.moveTo(420 + 122 * bench_index1, 775)
+        pyautogui.press("e")
+
     def reroll(self):
         """
         Presses the reroll button via default hotkey.
