@@ -99,28 +99,25 @@ class Field:
                             and champion.star_level > 0
                             and champion.star_level < 3
                         ):
+                            print("3 champions of star level " + str(champion.star_level) + " found.")
                             # change to different star
                             upgraded_champ = Champion(
                                 champion.name, champion.star_level + 1
                             )
-                            upgraded_champ.position = self.champions[champion.name][
+                            prev_position = self.champions[champion.name][
                                 champion.star_level
-                            ][0]
-                            if champion.star_level + 1 in self.champions[champion.name]:
-                                self.champions[champion.name][
-                                    champion.star_level + 1
-                                ].append(upgraded_champ)
-                            else:
-                                self.champions[champion.name][
-                                    champion.star_level + 1
-                                ] = [upgraded_champ]
+                            ][0].position
                             for champ in self.champions[champion.name][
                                 champion.star_level
-                            ]:
+                            ].copy():
                                 if champ.position[0] == "board":
                                     self.removeChampionFromBoard(champ)
                                 else:
                                     self.removeChampionFromBench(champ)
+                            if prev_position[0] == "board":
+                                self.addChampionToBoard(upgraded_champ, prev_position[1])
+                            else:
+                                self.addChampionToBench(upgraded_champ)
                 break
 
     def removeChampionFromBench(self, champion):
@@ -157,4 +154,3 @@ class Field:
             + "\nBoard: "
             + str(self.board_position)
         )
-

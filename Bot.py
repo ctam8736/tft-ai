@@ -6,6 +6,9 @@ import pyautogui
 
 
 class Bot:
+
+    star_values = [1, 1.8, 3.6]
+
     def __init__(self):
         self.info_reader = ScreenInterpreter()
         self.controller = PlayerControl()
@@ -26,17 +29,20 @@ class Bot:
         """
         if champion is None:
             return 0
-        return champion.tier
+        return self.star_values[champion.star_level - 1] * (1 + 0.2 * champion.tier)
 
     def purchaseLoop(self):
         """
         To do: buys best candidate champions from the store in exchange for empty/low-value champions on field.
         """
+
+        #if bench is full, find worst champion
+        min_value = -1
+        worst_idx = 0
         if not self.field.hasEmptySpaces():
             # find minimum champion on bench
             bench_champ_values = list(map(self.valueOf, self.field.bench_position))
             min_value = bench_champ_values[0]
-            worst_idx = 0
             for idx, value in enumerate(bench_champ_values):
                 if value < min_value:
                     min_value = value
@@ -47,8 +53,8 @@ class Bot:
                 + " at value "
                 + str(min_value)
             )
-            self.controller.sellChampion(worst_idx)
 
+        #find best champion in store
         self.info_reader.retrieveData(pyautogui.screenshot())
         store_champ_values = list(
             map(
@@ -68,7 +74,12 @@ class Bot:
             + " at value "
             + str(max_value)
         )
-        self.buyChampion(best_idx)
+
+        #if bench can be improved, exchange
+        if min_value < max_value:
+            if min_value > 0:
+                self.controller.sellChampion(worst_idx)
+            self.buyChampion(best_idx)
         print(self.info_reader.data["store"])
         print(store_champ_values)
 
@@ -88,6 +99,13 @@ class Bot:
         self.controller.sellChampion(bench_idx)
         self.field.removeChampionFromBench(bench_idx)
 
+    def championFromName(self, champ_name):
+        champ = Champion(champ_name, 1)
+        if champ.name is None:
+            return None
+        else:
+            return champ
+
     def decideReroll(self):
         """
         Returns true if rerolling is favorable.
@@ -99,11 +117,3 @@ class Bot:
         To do: from pool of champs, make best (synergistic) board configuration.
         """
         pass
-
-    def championFromName(self, champ_name):
-        champ = Champion(champ_name, 1)
-        if champ.name is None:
-            return None
-        else:
-            return champ
-

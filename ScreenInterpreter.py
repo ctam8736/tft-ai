@@ -89,4 +89,3 @@ class ScreenInterpreter:
         Returns current gold count (use after retrieval).
         """
         return self.data["gold"]
-

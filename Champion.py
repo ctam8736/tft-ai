@@ -21,7 +21,7 @@ class Champion:
             self.position = ["", 0]
             self.items = [None] * 3
         else:
-            print("'" + name + "' is not a valid TFT champion.")
+            # print("'" + name + "' is not a valid TFT champion.")
             self.name = None
 
     """
@@ -34,4 +34,3 @@ class Champion:
         if self.name is None:
             return "Empty champion."
         return self.name + ": " + str(self.star_level)
-

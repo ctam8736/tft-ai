@@ -21,4 +21,3 @@ class Resources:
 
     def currentInterest(self):
         return math.floor(min(self.gold, 50) / 10)
-
