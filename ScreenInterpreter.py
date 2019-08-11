@@ -53,7 +53,13 @@ class ScreenInterpreter:
             .convert("L")
             .point(fn, mode="1")
         )
-        self.data["gold"] = int(self.read(screenshot, whitelist="0123456789"))
+        ## Modified from source 20190810
+        str_gold = self.read(screenshot, whitelist="0123456789")
+        if(len(str_gold) < 1):
+            str_gold = = pytesseract.image_to_string(screenshot,
+                            config="--psm 10 -c tessedit_char_whitelist=0123456789")
+        self.data["gold"] = int(str_gold)
+        ## EndModified
         """
 
     def cropAndEdit(self, img, x1, y1, x2, y2):
